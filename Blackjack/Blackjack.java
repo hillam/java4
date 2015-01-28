@@ -28,7 +28,7 @@ public class Blackjack{
 
 			winner = false;
 			while(!winner){
-				// Winner iff someone busts, or both stay
+				// 'winner' iff someone busts, or both stay
 				stay = true;
 
 				System.out.println("\nHouse hand:\n(House's hole card)\n" + 
@@ -65,8 +65,10 @@ public class Blackjack{
 					}
 				}
 
+				System.out.println("\n***************************************");
+
 				// Pseudo-AI
-				if(house.getScore() <= 17){
+				if(house.getScore() <= 17 && player.getScore() <= 21){
 					System.out.println("\nThe house hits");
 					house.drawCard();
 					stay = false;
@@ -74,8 +76,6 @@ public class Blackjack{
 				else{
 					System.out.println("\nThe house stays");
 				}
-
-				System.out.println("\n***************************************");
 
 				if(stay)
 					winner = true;
@@ -92,11 +92,13 @@ public class Blackjack{
 			if((player.getScore() > 21 && house.getScore() <= 21) ||
 					(player.getScore() < house.getScore() && 
 					house.getScore() <= 21))
-				 System.out.println("The house wins!");
-			if((house.getScore() > 21 && player.getScore() <= 21) ||
+				System.out.println("The house wins!");
+			else if((house.getScore() > 21 && player.getScore() <= 21) ||
 					(house.getScore() < player.getScore() && 
 					player.getScore() <= 21))
-				 System.out.println("You win!");
+				System.out.println("You win!");
+			else
+				System.out.println("You and the house both have busted hands.");
 
 			//Play again?
 			System.out.print("Would you like to play again? (y/n)\n> ");

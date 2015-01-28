@@ -6,7 +6,8 @@ public class Card{
 
 	private final int[] VALUES = {11,2,3,4,5,6,7,8,9,10,10,10,10};
 		/* (int)(x%13) */
-	private final String[] NAMES = {"Ace","2","3","4","5","6","7","8","9","10","Jack","Queen","King"};
+	private final String[] NAMES = {"Ace","2","3","4","5","6","7","8","9","10",
+									"Jack","Queen","King"};
 	private final String[] SUITS = {"Clubs","Hearts","Spades","Diamonds"};
 		/* (int)(x/52.0/.25) */
 
