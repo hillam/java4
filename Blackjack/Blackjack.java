@@ -5,10 +5,9 @@ public class Blackjack{
 	public static void main(String[] args){
 		Deck deck = new Deck();
 		Hand player,house;
-		String input = "";
-		boolean valid;
+		String input = "", str;
+		boolean winner, stay, valid;
 		Scanner keys = new Scanner(System.in);
-		//System.out.println(deck.drawCard().getName());
 
 		String again = "y";
 		while(again.equals("y")){
@@ -23,37 +22,85 @@ public class Blackjack{
 			house.drawCard();
 			house.drawCard();
 
+			System.out.println("\n*********************");
 			System.out.println("Welcome to Blackjack!");
+			System.out.println("*********************");
 
-			while(true){
-				System.out.println("\nHouse hand:\n" + player.toString() +
-					"\nHouse score: " + house.getScore() + "\n");
+			winner = false;
+			while(!winner){
+				// Winner iff someone busts, or both stay
+				stay = true;
+
+				System.out.println("\nHouse hand:\n(House's hole card)\n" + 
+					house.toString(1) + "\nHouse score: ***\n");
 				System.out.println("Your hand:\n" + player.toString() +
 					"\nYour score: " + player.getScore());
 
+				// PLAYER CHOOSES
 				valid = false;
 				while(!valid){
-					if(player.getScore() < 21){
+					if(player.getScore() <= 21){
 						System.out.print("You may (h)it or (s)tay.\n> ");
-					
 						input = keys.next();
 
 						if(input.equals("h")){
 							player.drawCard();
 							valid = true;
+							stay = false;
 						}
-						else if(input.equals("s"))
+						else if(input.equals("s")){
 							valid = true;
+						}
 						else
 							System.out.println("Invalid input. Try again.");
 					}
-					//Other scenarios..
+					else{
+						System.out.print("You have a busted hand. " +
+							"(Press enter...)\n> ");
+						keys.nextLine();
+						keys.nextLine();
+
+						valid = true;
+						winner = true;
+					}
 				}
+
+				// Pseudo-AI
+				if(house.getScore() <= 17){
+					System.out.println("\nThe house hits");
+					house.drawCard();
+					stay = false;
+				}
+				else{
+					System.out.println("\nThe house stays");
+				}
+
+				System.out.println("\n***************************************");
+
+				if(stay)
+					winner = true;
 			}
 
+			// FINAL 'SCORE'
+			System.out.println("\nHouse hand:\n(House's hole card)\n" + 
+				house.toString() + "\nHouse score: " + house.getScore() + 
+				"\n");
+			System.out.println("Your hand:\n" + player.toString() +
+				"\nYour score: " + player.getScore() + "\n");
+
+			// PRINT WINNER
+			if((player.getScore() > 21 && house.getScore() <= 21) ||
+					(player.getScore() < house.getScore() && 
+					house.getScore() <= 21))
+				 System.out.println("The house wins!");
+			if((house.getScore() > 21 && player.getScore() <= 21) ||
+					(house.getScore() < player.getScore() && 
+					player.getScore() <= 21))
+				 System.out.println("You win!");
+
 			//Play again?
-			//System.out.print("Would you like to play again? (y/n)\n> ");
-			//again = keys.next();
+			System.out.print("Would you like to play again? (y/n)\n> ");
+			again = keys.next();
 		}
 	}
 }

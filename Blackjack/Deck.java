@@ -24,6 +24,6 @@ public class Deck{
 
 	public Card drawCard(){
 		numCards--;
-		return  cards[numCards];
+		return cards[numCards];
 	}
 }
