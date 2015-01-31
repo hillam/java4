@@ -14,6 +14,14 @@ public class Hand{
 		aces = 0;
 	}
 
+	public Hand(Deck deck){
+		cards = new Card[10];
+		this.deck = deck;
+		size = 0;
+		score = 0;
+		aces = 0;
+	}
+
 	public void setDeck(Deck deck){
 		this.deck = deck;
 	}

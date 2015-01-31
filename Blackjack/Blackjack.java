@@ -1,30 +1,60 @@
 import java.util.Scanner;
+import java.lang.Thread;
 
 public class Blackjack{
 
-	public static void main(String[] args){
+	public static void main(String[] args) throws InterruptedException{
 		Deck deck = new Deck();
 		Hand player,house;
 		String input = "", str;
 		boolean winner, stay, valid;
 		Scanner keys = new Scanner(System.in);
+		
+		// Player data:
+		String name = "Player";
+		int cash = 100, bet;
+
+		System.out.println("\n*************************");
+		System.out.println("* Welcome to Blackjack! *");
+		System.out.println("*************************");
+
+		System.out.print("Please enter your name: \n> ");
+		name = keys.nextLine();
+
+		System.out.println("\n" + name + "'s cash: $" + cash);
 
 		String again = "y";
 		while(again.equals("y")){
 			deck.shuffle();
-			player = new Hand();
-			player.setDeck(deck);
-			house = new Hand();
-			house.setDeck(deck);
+
+			System.out.print("\nShuffling cards");
+			for (int i = 0;i < 7;i++){
+				System.out.print("...");
+				Thread.sleep(300);
+			}
+			System.out.print("(done)\n");
+
+			player = new Hand(deck);
+			house = new Hand(deck);
 
 			player.drawCard();
 			player.drawCard();
 			house.drawCard();
 			house.drawCard();
 
-			System.out.println("\n*********************");
-			System.out.println("Welcome to Blackjack!");
-			System.out.println("*********************");
+			bet = 0;
+
+			if(cash > 0){
+				while(bet <= 0 || bet > cash){
+					System.out.println("\nPlease enter your bet [1-" + 
+						cash + "]");
+					System.out.print("> $");
+					bet = Integer.parseInt(keys.nextLine());
+					if(bet <= 0 || bet > cash)
+						System.out.println("\nPlease place your bet within " + 
+							"the valid range!\n");
+				}
+			}
 
 			winner = false;
 			while(!winner){
@@ -33,8 +63,8 @@ public class Blackjack{
 
 				System.out.println("\nHouse hand:\n(House's hole card)\n" + 
 					house.toString(1) + "\nHouse score: ***\n");
-				System.out.println("Your hand:\n" + player.toString() +
-					"\nYour score: " + player.getScore());
+				System.out.println(name + "'s hand:\n" + player.toString() +
+					"\n" + name + "'s score: " + player.getScore());
 
 				// PLAYER CHOOSES
 				valid = false;
@@ -65,7 +95,8 @@ public class Blackjack{
 					}
 				}
 
-				System.out.println("\n***************************************");
+				System.out.println("\n---------------------------------------" +
+					"---------------------------------------");
 
 				// Pseudo-AI
 				if(house.getScore() <= 17 && player.getScore() <= 21){
@@ -82,27 +113,51 @@ public class Blackjack{
 			}
 
 			// FINAL 'SCORE'
-			System.out.println("\nHouse hand:\n(House's hole card)\n" + 
+			System.out.println("\nHouse hand:\n" + 
 				house.toString() + "\nHouse score: " + house.getScore() + 
 				"\n");
-			System.out.println("Your hand:\n" + player.toString() +
-				"\nYour score: " + player.getScore() + "\n");
+			System.out.println(name + "'s hand:\n" + player.toString() +
+				"\n" + name + "'s score: " + player.getScore() + "\n");
 
 			// PRINT WINNER
 			if((player.getScore() > 21 && house.getScore() <= 21) ||
 					(player.getScore() < house.getScore() && 
-					house.getScore() <= 21))
+					house.getScore() <= 21)){
 				System.out.println("The house wins!");
+				cash -= bet;
+			}
 			else if((house.getScore() > 21 && player.getScore() <= 21) ||
 					(house.getScore() < player.getScore() && 
-					player.getScore() <= 21))
+					player.getScore() <= 21)){
 				System.out.println("You win!");
-			else
+				cash += bet;
+			}
+			else if(house.getScore() == player.getScore()){
+				System.out.println("You and the house have the same score, " +
+					"so the house wins.");
+				cash -= bet;
+			}
+			else{
 				System.out.println("You and the house both have busted hands.");
+				cash -= bet;
+			}
+
+			System.out.println(name + "'s cash: $" + cash);
+			System.out.println(name + "'s bet: $" + bet);
 
 			//Play again?
-			System.out.print("Would you like to play again? (y/n)\n> ");
-			again = keys.next();
+			if(cash > 0){
+				System.out.print("Would you like to play again? (y/n)\n> ");
+				again = keys.next();
+				keys.nextLine();
+			}
+			else{
+				System.out.println("You're out of money. Please get lost :-)");
+				again = "";
+			}
 		}
+
+		if(cash > 0)
+			System.out.println("Thank you for playing :-)\n");
 	}
 }
