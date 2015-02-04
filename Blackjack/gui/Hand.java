@@ -1,3 +1,5 @@
+import java.awt.Graphics;
+
 public class Hand{
 	
 	private Card[] cards;
@@ -5,13 +7,19 @@ public class Hand{
 	private int size;
 	private int score;
 	private int aces;
+	private boolean player;
 
-	public Hand(){
+	public Hand(boolean player){
 		cards = new Card[10];
 		deck = new Deck();
 		size = 0;
 		score = 0;
 		aces = 0;
+		this.player = player;
+	}
+
+	public void paint(Graphics g){
+		//paint each card
 	}
 
 	public void setDeck(Deck deck){
@@ -19,7 +27,13 @@ public class Hand{
 	}
 
 	public void drawCard(){
-		cards[size] = deck.drawCard();
+		if(size < cards.length)
+			cards[size] = deck.drawCard();
+		else{
+			//array out of bounds, so expand it, and then try again
+			expand();
+			drawCard();
+		}
 		score += cards[size].getValue();
 		if(cards[size].getValue() > 10)
 			aces ++;
@@ -32,6 +46,13 @@ public class Hand{
 			i++;
 			aces--;
 		}
+	}
+
+	private void expand(){
+		Card[] bigger = new Card[cards.length * 2];
+		for(int i = 0;i < size;i++)
+			bigger[i] = cards[i];
+		cards = bigger;
 	}
 
 	public int getScore(){

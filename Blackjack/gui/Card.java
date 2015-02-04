@@ -1,3 +1,5 @@
+import java.awt.Graphics;
+
 public class Card{
 
 	private int number;
@@ -16,6 +18,10 @@ public class Card{
 		value = VALUES[(number%13)];
 		name = NAMES[(number%13)];
 		name += " of " + SUITS[(int)(number/52.0/0.25)];
+	}
+
+	public void paint(Graphics g,int x,int y,boolean up){
+		//paint the CORRECT card at x and y
 	}
 
 	public int getValue(){
