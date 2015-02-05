@@ -1,4 +1,5 @@
 import java.awt.Graphics;
+import javax.swing.JPanel;
 
 public class Hand{
 	
@@ -7,6 +8,7 @@ public class Hand{
 	private int size;
 	private int score;
 	private int aces;
+	private int y;
 	private boolean player;
 
 	public Hand(boolean player){
@@ -16,10 +18,32 @@ public class Hand{
 		score = 0;
 		aces = 0;
 		this.player = player;
+
+		//y coord for printing
+		//house start at 20,70
+		//player start at 20,360
+		y = 70;
+		if(player)
+			y += 290;
 	}
 
-	public void paint(Graphics g){
-		//paint each card
+	public void reset(){
+		cards = new Card[10];
+		size = 0;
+		score = 0;
+		aces = 0;
+	}
+
+	//hole is true if the hole card should be hidden
+	public void paint(JPanel j,Graphics g,boolean hole){
+		//paint each card. card: 115,175.. 2px margin is fine
+		int i = 0;
+		if(hole){
+			cards[0].paint(j,g,20,y,true);
+			i++;
+		}
+		for(;i < size;i++)
+			cards[i].paint(j,g,20+(i*117),y,false);
 	}
 
 	public void setDeck(Deck deck){

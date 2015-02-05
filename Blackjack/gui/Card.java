@@ -1,10 +1,19 @@
 import java.awt.Graphics;
+import javax.swing.JPanel;
+import javax.swing.ImageIcon;
 
 public class Card{
 
 	private int number;
 	private int value;
+	private int suit;
 	private String name;
+
+	private ImageIcon hole = new ImageIcon("images/cardback.jpg");
+	private ImageIcon club = new ImageIcon("images/club.jpg");
+	private ImageIcon heart = new ImageIcon("images/heart.jpg");
+	private ImageIcon spade = new ImageIcon("images/spade.jpg");
+	private ImageIcon diamond = new ImageIcon("images/diamond.jpg");
 
 	private final int[] VALUES = {11,2,3,4,5,6,7,8,9,10,10,10,10};
 		/* (int)(x%13) */
@@ -17,11 +26,30 @@ public class Card{
 		this.number = number;
 		value = VALUES[(number%13)];
 		name = NAMES[(number%13)];
-		name += " of " + SUITS[(int)(number/52.0/0.25)];
+		suit = (int)(number/52.0/0.25);
+		name += " of " + SUITS[suit];
 	}
 
-	public void paint(Graphics g,int x,int y,boolean up){
-		//paint the CORRECT card at x and y
+	//down is true if the card is face down
+	public void paint(JPanel j,Graphics g,int x,int y,boolean down){
+		//paint the correct card at x and y
+		if(down)
+			hole.paintIcon(j,g,x,y);
+		else
+			switch(suit){
+				case 0:
+					club.paintIcon(j,g,x,y);
+					break;
+				case 1:
+					heart.paintIcon(j,g,x,y);
+					break;
+				case 2:
+					spade.paintIcon(j,g,x,y);
+					break;
+				case 3:
+					diamond.paintIcon(j,g,x,y);
+					break;
+			}
 	}
 
 	public int getValue(){
