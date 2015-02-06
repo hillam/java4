@@ -12,6 +12,7 @@ public class Deck{
 	}
 
 	public void shuffle(){
+		numCards = 52;
 		Card c;
 		int j;
 		for(int i=0;i<52;i++){

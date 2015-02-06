@@ -11,20 +11,26 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseEvent;
-import java.lang.Thread;
 
 public class Blackjack extends JPanel implements MouseListener,ActionListener{
+
+	static final long serialVersionUID = 1;
 
 	private ImageIcon background = new ImageIcon("images/background.jpg");
 	private ImageIcon b_hit = new ImageIcon("images/hit.jpg");
 	private ImageIcon b_stay = new ImageIcon("images/stay.jpg");
 
+	private ImageIcon b_start = new ImageIcon("images/start.jpg");
+	private ImageIcon b_win = new ImageIcon("images/win.jpg");
+	private ImageIcon b_lose = new ImageIcon("images/lose.jpg");
+
 	Deck deck = new Deck();
 	Hand player = new Hand(true);
 	Hand house = new Hand(false);
-	boolean winner, stay, valid;
+	boolean winner = false, stay = false;
+	boolean start_active = true; //determine if start button is active
 	int cash = 100,
-		bet = 1;
+		bet = 10;
 	Timer t;
 
 	Blackjack(){
@@ -35,9 +41,7 @@ public class Blackjack extends JPanel implements MouseListener,ActionListener{
 		addMouseListener(this);
 		setVisible(true);
 
-		t = new Timer(1000,this);
-
-		start();
+		t = new Timer(800,this);
 	}
 
 	public void paintComponent(Graphics g){
@@ -62,42 +66,57 @@ public class Blackjack extends JPanel implements MouseListener,ActionListener{
 		g.setFont(new Font(Font.SANS_SERIF,Font.BOLD,24));
 		g.drawString("Bet: $"+bet,300,580);
 
-		//print buttons at 400,265 and 500,265
-		g.setColor(Color.BLACK);
-		b_hit.paintIcon(this,g,400,265);
-		b_stay.paintIcon(this,g,500,265);
-
 		//if game is won, print result
 		if(winner){
-			if((player.getScore() > 21 && house.getScore() <= 21) ||
+			System.out.println("Print winner");
+			if(player.getScore() > 21 || player.getScore() == house.getScore() ||
 					(player.getScore() < house.getScore() && house.getScore() <= 21)){
-				//print house wins
+				b_lose.paintIcon(this,g,400,265);
 				finish(false);
 			}
 			else{
-				//print house wins
-				finish(true);
+				b_win.paintIcon(this,g,400,265);
+				finish(true); 
 			}
 		}
+		else{
+			//print buttons at 400,265 and 500,265
+			b_hit.paintIcon(this,g,400,265);
+			b_stay.paintIcon(this,g,500,265);
+		}
 
+		if(start_active)
+			b_start.paintIcon(this,g,203,262);
+	}
+
+	//call this instead of start() to start
+	private void bet(){
+		boolean valid = false;
+		if(cash > 0){
+			while(!valid){
+				bet = Integer.parseInt(JOptionPane.showInputDialog(this,"Enter a betting ammount: " +
+					"[1-" + cash + "]"));
+				if(bet <= cash && bet > 0)
+					valid = true;
+				else
+					bet = 
+					JOptionPane.showConfirmDialog(this,"Your bet is invalid.",
+						"Invalid",JOptionPane.OK_CANCEL_OPTION);
+			}
+		}
+		else{
+			JOptionPane.showConfirmDialog(this,"You are out of money. Please get lost :-)",
+				"Broke",JOptionPane.OK_CANCEL_OPTION);
+			System.exit(0);
+		}
+		start();
 	}
 
 	private void start(){
+		t.start();
+		
 		winner = false;
 		stay = false;
-		valid = false;
-
-		while(!valid){
-			bet = Integer.parseInt(JOptionPane.showInputDialog(this,"Enter a betting ammount: " +
-				"[1-" + cash + "]"));
-			if(bet < cash && bet > 0)
-				valid = true;
-			else
-				JOptionPane.showConfirmDialog(this,"Your bet is invalid.",
-					"Invalid",JOptionPane.OK_CANCEL_OPTION);
-		}
-
-		t.start();
 
 		deck.shuffle();
 
@@ -113,31 +132,41 @@ public class Blackjack extends JPanel implements MouseListener,ActionListener{
 	}
 
 	//player is true if the player won
-	private void finish(boolean player){
-		if(player)
+	private void finish(boolean p){
+		if(p)
 			cash += bet;
 		else
 			cash -= bet;
-		start();
+		t.stop();
 	}
 
 	public void actionPerformed(ActionEvent e){
 		//if the player has stayed, the house draws each 'frame'
 		if(stay){
-			if(house.getScore() < 17 && player.getScore() <= 21)
+			if(house.getScore() < 17 && player.getScore() < 22){
 				house.drawCard();
+			}
 			else{
 				winner = true;
-				repaint();
-				t.stop();
+				System.out.println("House finished");
 			}
 		}
-		else
-			repaint();
+		
+		repaint();
 	}
 
 	public void mousePressed(MouseEvent e){
-		if(e.getX() > 400 &&
+		//clicked start
+		if(e.getX() > 203 &&
+				e.getX() < (203 + b_start.getIconWidth()) &&
+				e.getY() > 262 &&
+				e.getY() < (262 + b_start.getIconHeight())&&
+				start_active){
+			bet();
+			start_active = false;
+		}
+		//clicked hit
+		else if(e.getX() > 400 &&
 				e.getX() < (400 + b_hit.getIconWidth()) &&
 				e.getY() > 265 &&
 				e.getY() < (265 + b_hit.getIconHeight())&&
@@ -147,6 +176,7 @@ public class Blackjack extends JPanel implements MouseListener,ActionListener{
 				stay = true;
 			repaint();
 		}
+		//clicked stay
 		else if(e.getX() > 500 &&
 				e.getX() < (500 + b_stay.getIconWidth()) &&
 				e.getY() > 265 &&
@@ -155,10 +185,17 @@ public class Blackjack extends JPanel implements MouseListener,ActionListener{
 			stay = true;
 			repaint();
 		}
+		//clicked win/lose
+		else if(e.getX() > 400 &&
+				e.getX() < (400 + b_win.getIconWidth()) &&
+				e.getY() > 265 &&
+				e.getY() < (265 + b_win.getIconHeight())&&
+				winner){
+			bet();
+		}
 	}
 	public void mouseReleased(MouseEvent e){}
 	public void mouseClicked(MouseEvent e){}
 	public void mouseEntered(MouseEvent e){}
 	public void mouseExited(MouseEvent e){}
-
 }
