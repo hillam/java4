@@ -83,11 +83,21 @@ public class Blackjack extends JPanel implements MouseListener,ActionListener{
 	}
 
 	private void start(){
-		t.start();
-
 		winner = false;
 		stay = false;
 		valid = false;
+
+		while(!valid){
+			bet = Integer.parseInt(JOptionPane.showInputDialog(this,"Enter a betting ammount: " +
+				"[1-" + cash + "]"));
+			if(bet < cash && bet > 0)
+				valid = true;
+			else
+				JOptionPane.showConfirmDialog(this,"Your bet is invalid.",
+					"Invalid",JOptionPane.OK_CANCEL_OPTION);
+		}
+
+		t.start();
 
 		deck.shuffle();
 
@@ -100,16 +110,6 @@ public class Blackjack extends JPanel implements MouseListener,ActionListener{
 		house.drawCard();
 
 		repaint();
-
-		while(!valid){
-			bet = Integer.parseInt(JOptionPane.showInputDialog(this,"Enter a betting ammount: " +
-				"[1-" + cash + "]"));
-			if(bet < cash && bet > 0)
-				valid = true;
-			else
-				JOptionPane.showConfirmDialog(this,"Your bet is invalid.",
-					"Invalid",JOptionPane.OK_CANCEL_OPTION);
-		}
 	}
 
 	//player is true if the player won
@@ -128,11 +128,12 @@ public class Blackjack extends JPanel implements MouseListener,ActionListener{
 				house.drawCard();
 			else{
 				winner = true;
+				repaint();
 				t.stop();
 			}
 		}
-
-		repaint();
+		else
+			repaint();
 	}
 
 	public void mousePressed(MouseEvent e){
