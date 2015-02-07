@@ -75,7 +75,7 @@ public class Blackjack extends JPanel implements MouseListener,ActionListener{
 			}
 			else{
 				b_win.paintIcon(this,g,400,265);
-				finish(true); 
+				finish(true);
 			}
 		}
 		else{
@@ -98,13 +98,15 @@ public class Blackjack extends JPanel implements MouseListener,ActionListener{
 						"[1-" + cash + "]"));
 				}
 				catch(Exception e){
-					bet = -1;
+					bet = 0;
 				}
 				if(bet <= cash && bet > 0)
 					valid = true;
-				else
+				else{
+					bet = 0;
 					JOptionPane.showConfirmDialog(this,"Your bet is invalid.",
 						"Invalid",JOptionPane.OK_CANCEL_OPTION);
+				}
 			}
 		}
 		else{
@@ -140,6 +142,7 @@ public class Blackjack extends JPanel implements MouseListener,ActionListener{
 			cash += bet;
 		else
 			cash -= bet;
+		bet = 0;
 		t.stop();
 	}
 
