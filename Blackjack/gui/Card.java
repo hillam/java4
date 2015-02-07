@@ -12,11 +12,11 @@ public class Card{
 	private int suit;
 	private String name;
 
-	private ImageIcon hole = new ImageIcon("images/cardback.jpg");
-	private ImageIcon club = new ImageIcon("images/club.jpg");
-	private ImageIcon heart = new ImageIcon("images/heart.jpg");
-	private ImageIcon spade = new ImageIcon("images/spade.jpg");
-	private ImageIcon diamond = new ImageIcon("images/diamond.jpg");
+	private ImageIcon hole = new ImageIcon(getClass().getResource("images/cardback.jpg"));
+	private ImageIcon club = new ImageIcon(getClass().getResource("images/club.jpg"));
+	private ImageIcon heart = new ImageIcon(getClass().getResource("images/heart.jpg"));
+	private ImageIcon spade = new ImageIcon(getClass().getResource("images/spade.jpg"));
+	private ImageIcon diamond = new ImageIcon(getClass().getResource("images/diamond.jpg"));
 
 	private final int[] VALUES = {11,2,3,4,5,6,7,8,9,10,10,10,10};
 		/* (int)(x%13) */

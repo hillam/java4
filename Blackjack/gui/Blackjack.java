@@ -16,13 +16,13 @@ public class Blackjack extends JPanel implements MouseListener,ActionListener{
 
 	static final long serialVersionUID = 1;
 
-	private ImageIcon background = new ImageIcon("images/background.jpg");
-	private ImageIcon b_hit = new ImageIcon("images/hit.jpg");
-	private ImageIcon b_stay = new ImageIcon("images/stay.jpg");
+	private ImageIcon background = new ImageIcon(getClass().getResource("images/background.jpg"));
+	private ImageIcon b_hit = new ImageIcon(getClass().getResource("images/hit.jpg"));
+	private ImageIcon b_stay = new ImageIcon(getClass().getResource("images/stay.jpg"));
 
-	private ImageIcon b_start = new ImageIcon("images/start.jpg");
-	private ImageIcon b_win = new ImageIcon("images/win.jpg");
-	private ImageIcon b_lose = new ImageIcon("images/lose.jpg");
+	private ImageIcon b_start = new ImageIcon(getClass().getResource("images/start.jpg"));
+	private ImageIcon b_win = new ImageIcon(getClass().getResource("images/win.jpg"));
+	private ImageIcon b_lose = new ImageIcon(getClass().getResource("images/lose.jpg"));
 
 	Deck deck = new Deck();
 	Hand player = new Hand(true);
@@ -68,7 +68,6 @@ public class Blackjack extends JPanel implements MouseListener,ActionListener{
 
 		//if game is won, print result
 		if(winner){
-			System.out.println("Print winner");
 			if(player.getScore() > 21 || player.getScore() == house.getScore() ||
 					(player.getScore() < house.getScore() && house.getScore() <= 21)){
 				b_lose.paintIcon(this,g,400,265);
@@ -94,12 +93,16 @@ public class Blackjack extends JPanel implements MouseListener,ActionListener{
 		boolean valid = false;
 		if(cash > 0){
 			while(!valid){
-				bet = Integer.parseInt(JOptionPane.showInputDialog(this,"Enter a betting ammount: " +
-					"[1-" + cash + "]"));
+				try{
+					bet = Integer.parseInt(JOptionPane.showInputDialog(this,"Enter a betting ammount: " +
+						"[1-" + cash + "]"));
+				}
+				catch(Exception e){
+					bet = -1;
+				}
 				if(bet <= cash && bet > 0)
 					valid = true;
 				else
-					bet = 
 					JOptionPane.showConfirmDialog(this,"Your bet is invalid.",
 						"Invalid",JOptionPane.OK_CANCEL_OPTION);
 			}
@@ -148,7 +151,6 @@ public class Blackjack extends JPanel implements MouseListener,ActionListener{
 			}
 			else{
 				winner = true;
-				System.out.println("House finished");
 			}
 		}
 		
