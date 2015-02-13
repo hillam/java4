@@ -37,13 +37,15 @@ public class Hand{
 	//hole is true if the hole card should be hidden
 	public void paint(JPanel j,Graphics g,boolean hole){
 		//paint each card. card: 115,175.. 2px margin is fine
-		int i = 0;
-		if(hole){
-			cards[0].paint(j,g,20,y,true);
-			i++;
+		if(size > 0){
+			int i = 0;
+			if(hole){
+				cards[0].paint(j,g,20,y,true);
+				i++;
+			}
+			for(;i < size;i++)
+				cards[i].paint(j,g,20+(i*117),y,false);
 		}
-		for(;i < size;i++)
-			cards[i].paint(j,g,20+(i*117),y,false);
 	}
 
 	public void setDeck(Deck deck){
