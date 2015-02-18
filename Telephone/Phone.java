@@ -8,7 +8,6 @@ import java.awt.Dimension;
 public class Phone extends JPanel implements ActionListener{
 
 	JTextField display = new JTextField(20);
-
 	JButton buttons[] = new JButton[9];
 
 	Phone(){
