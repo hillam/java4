@@ -13,12 +13,21 @@ public class Calculator extends JPanel implements ActionListener{
 	JPanel container = new JPanel();
 
 	JTextField display = new JTextField(15);
+
 	JPanel b_panel = new JPanel();
 	JButton numbers[] = new JButton[12];
 	JPanel num_panels[] = new JPanel[12];
 	JButton operations[] = new JButton[4];
 	JPanel op_panels[] = new JPanel[4];
+	JButton clear = new JButton("Clear");
+	JPanel cl_panel = new JPanel();
+
 	JPanel spacer = new JPanel();
+
+	double first = 0;
+	double second = 0;
+	char op = '?';
+	boolean dbl = false;
 
 	Calculator(){
 		container.setLayout(new BorderLayout());
@@ -28,7 +37,12 @@ public class Calculator extends JPanel implements ActionListener{
 		addDisplay();
 		addNumbers();
 		addOperations();
+
 		container.add(b_panel,BorderLayout.CENTER);
+
+		clear.addActionListener(this);
+		cl_panel.add(clear);
+		container.add(cl_panel,BorderLayout.SOUTH);
 
 		this.add(container);
 	}
@@ -91,7 +105,104 @@ public class Calculator extends JPanel implements ActionListener{
 	}
 
 	public void actionPerformed(ActionEvent e){
-		display.setText(display.getText() + ((JButton)e.getSource()).getText());
+		char btn = ((JButton)e.getSource()).getText().charAt(0);
+
+		if((btn >= '0' && btn < ':') || btn == '.'){
+			if((!dbl && btn == '.') || btn != '.')
+				display.setText(display.getText() + ((JButton)e.getSource()).getText());
+			if(btn == '.')
+				dbl = true;
+		}
+		else if(btn == 'C'){
+			first = 0;
+			second = 0;
+			op = '?';
+			dbl = false;
+			display.setText("");
+		}
+		else{
+			if(op == '?'){
+				if(dbl)
+					first = Double.parseDouble(display.getText());
+				else 
+					first = Integer.parseInt(display.getText());
+			}
+			else{
+				if(dbl)
+					second = Double.parseDouble(display.getText());
+				else 
+					second = Integer.parseInt(display.getText());
+
+				first = operate(op,first,second);
+				if(btn == '='){
+					if((first / 1) % 1 == 0)
+						display.setText("" + ((int)first));
+					else
+						display.setText("" + first);
+					op = '?';
+				}
+				/*switch(btn){
+					case '/':
+						first = first / second;
+						break;
+					case '*':
+						first = first * second;
+						break;
+					case '-':
+						first = first - second;
+						break;
+					case '+':
+						first = first + second;
+						break;
+					case '=':
+							switch(op){
+								case '/':
+									first = first / second;
+									break;
+								case '*':
+									first = first * second;
+									break;
+								case '-':
+									first = first - second;
+									break;
+								case '+':
+									first = first + second;
+									break;
+							}
+							if((first / 1) % 1 == 0)
+								display.setText("" + ((int)first));
+							else
+								display.setText("" + first);
+						break;
+				}*/
+				dbl = false;
+			}
+			if(btn != '='){
+				op = btn;
+				display.setText("");
+			}
+		}
+
+		System.out.println("btn: " + btn + "\t\tfirst: " + first + "\t\tsecond: " + second);
+	}
+
+	private double operate(char operator,double x,double y){
+		switch(operator){
+			case '/':
+				x = x / y;
+				break;
+			case '*':
+				x = x * y;
+				break;
+			case '-':
+				x = x - y;
+				break;
+			case '+':
+				x = x + y;
+				break;
+		}
+
+		return x;
 	}
 
 	public static void main(String[] args){
