@@ -19,15 +19,19 @@ public class Calculator extends JPanel implements ActionListener{
 	JPanel num_panels[] = new JPanel[12];
 	JButton operations[] = new JButton[4];
 	JPanel op_panels[] = new JPanel[4];
+
+	//bottom panel contains clear and +/-
+	JPanel bot_panel = new JPanel();
 	JButton clear = new JButton("Clear");
 	JPanel cl_panel = new JPanel();
+	JButton sign = new JButton(" +/-");
+	JPanel sn_panel = new JPanel();
 
 	JPanel spacer = new JPanel();
 
 	double first = 0;
 	double second = 0;
 	char op = '?';
-	boolean dbl = false;
 
 	Calculator(){
 		container.setLayout(new BorderLayout());
@@ -42,7 +46,15 @@ public class Calculator extends JPanel implements ActionListener{
 
 		clear.addActionListener(this);
 		cl_panel.add(clear);
-		container.add(cl_panel,BorderLayout.SOUTH);
+		
+		sign.addActionListener(this);
+		sn_panel.add(sign);
+
+		bot_panel.setLayout(new BorderLayout());
+		bot_panel.add(cl_panel,BorderLayout.EAST);
+		bot_panel.add(sn_panel,BorderLayout.CENTER);
+
+		container.add(bot_panel,BorderLayout.SOUTH);
 
 		this.add(container);
 	}
@@ -108,27 +120,30 @@ public class Calculator extends JPanel implements ActionListener{
 		char btn = ((JButton)e.getSource()).getText().charAt(0);
 
 		if((btn >= '0' && btn < ':') || btn == '.'){
-			if((!dbl && btn == '.') || btn != '.')
+			if((!display.getText().contains(".") && btn == '.') || btn != '.')
 				display.setText(display.getText() + ((JButton)e.getSource()).getText());
-			if(btn == '.')
-				dbl = true;
 		}
 		else if(btn == 'C'){
 			first = 0;
 			second = 0;
 			op = '?';
-			dbl = false;
 			display.setText("");
+		}
+		else if(btn == ' '){
+			if(display.getText().charAt(0) == '-')
+				display.setText(display.getText().substring(1,display.getText().length()));
+			else
+				display.setText("-" + display.getText());
 		}
 		else{
 			if(op == '?'){
-				if(dbl)
+				if(display.getText().contains("."))
 					first = Double.parseDouble(display.getText());
 				else 
 					first = Integer.parseInt(display.getText());
 			}
 			else{
-				if(dbl)
+				if(display.getText().contains("."))
 					second = Double.parseDouble(display.getText());
 				else 
 					second = Integer.parseInt(display.getText());
@@ -141,49 +156,12 @@ public class Calculator extends JPanel implements ActionListener{
 						display.setText("" + first);
 					op = '?';
 				}
-				/*switch(btn){
-					case '/':
-						first = first / second;
-						break;
-					case '*':
-						first = first * second;
-						break;
-					case '-':
-						first = first - second;
-						break;
-					case '+':
-						first = first + second;
-						break;
-					case '=':
-							switch(op){
-								case '/':
-									first = first / second;
-									break;
-								case '*':
-									first = first * second;
-									break;
-								case '-':
-									first = first - second;
-									break;
-								case '+':
-									first = first + second;
-									break;
-							}
-							if((first / 1) % 1 == 0)
-								display.setText("" + ((int)first));
-							else
-								display.setText("" + first);
-						break;
-				}*/
-				dbl = false;
 			}
 			if(btn != '='){
 				op = btn;
 				display.setText("");
 			}
 		}
-
-		System.out.println("btn: " + btn + "\t\tfirst: " + first + "\t\tsecond: " + second);
 	}
 
 	private double operate(char operator,double x,double y){
