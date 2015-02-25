@@ -18,12 +18,12 @@ public class Card{
 	private ImageIcon spade = new ImageIcon(getClass().getResource("images/spade.jpg"));
 	private ImageIcon diamond = new ImageIcon(getClass().getResource("images/diamond.jpg"));
 
-	private final int[] VALUES = {11,2,3,4,5,6,7,8,9,10,10,10,10};
+	private final int[] VALUES = {2,3,4,5,6,7,8,9,10,11,12,13,14};
 		/* (int)(x%13) */
-	private final String[] NAMES = {"Ace","2","3","4","5","6","7","8","9","10",
-									"Jack","Queen","King"};	
-	private final String[] SYMBOLS = {"A","2","3","4","5","6","7","8","9","10",
-									"J","Q","K",};
+	private final String[] NAMES = {"2","3","4","5","6","7","8","9","10",
+									"Jack","Queen","King","Ace"};	
+	private final String[] SYMBOLS = {"2","3","4","5","6","7","8","9","10",
+									"J","Q","K","A"};
 	private final String[] SUITS = {"Clubs","Hearts","Spades","Diamonds"};
 		/* (int)(x/52.0/.25) */
 
@@ -67,6 +67,10 @@ public class Card{
 
 	public int getValue(){
 		return value;
+	}
+
+	public int getSuit(){
+		return suit;
 	}
 
 	public String getName(){

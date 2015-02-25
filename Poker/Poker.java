@@ -124,6 +124,8 @@ public class Poker extends JPanel implements MouseListener,ActionListener{
 		house.drawCard();
 		house.drawCard();
 
+		System.out.println(player.getScore());
+
 		repaint();
 	}
 
