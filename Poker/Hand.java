@@ -37,10 +37,9 @@ public class Hand{
 	//hole is true if the hole card should be hidden
 	public void paint(JPanel j,Graphics g,boolean hole){
 		//paint each card. card: 115,175.. 2px margin is fine
-		if(size > 0){
+		if(size > 0)
 			for(int i=0;i < size;i++)
 				cards[i].paint(j,g,20+(i*117),y,hole);
-		}
 	}
 
 	public void setDeck(Deck deck){
@@ -55,18 +54,7 @@ public class Hand{
 			expand();
 			drawCard();
 		}
-		score += cards[size].getValue();
-		if(cards[size].getValue() > 10)
-			aces ++;
 		size ++;
-
-		//Aces become 1's if score is > 21
-		int i = 0;
-		while(score > 21 && i < aces){
-			score -= 10;
-			i++;
-			aces--;
-		}
 	}
 
 	private void expand(){
