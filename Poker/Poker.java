@@ -2,27 +2,28 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
-public class Poker extends JPanel implements MouseListener,ActionListener{
+public class Poker extends JPanel implements MouseListener{
 
 	static final long serialVersionUID = 1;
 
 	private ImageIcon background = new ImageIcon(getClass().getResource("images/background.jpg"));
-	private ImageIcon b_ride = new ImageIcon(getClass().getResource("images/hit.jpg"));
-	private ImageIcon b_fold = new ImageIcon(getClass().getResource("images/stay.jpg"));
+	private ImageIcon b_ride = new ImageIcon(getClass().getResource("images/ride.jpg"));
+	private ImageIcon b_fold = new ImageIcon(getClass().getResource("images/fold.jpg"));
 
+	private ImageIcon b_rules = new ImageIcon(getClass().getResource("images/b_rules.jpg"));
+	private ImageIcon overlay = new ImageIcon(getClass().getResource("images/rules.png"));
 	private ImageIcon b_start = new ImageIcon(getClass().getResource("images/start.jpg"));
-	private ImageIcon b_win = new ImageIcon(getClass().getResource("images/win.jpg"));
-	private ImageIcon b_lose = new ImageIcon(getClass().getResource("images/lose.jpg"));
+	private ImageIcon b_again = new ImageIcon(getClass().getResource("images/playagain.jpg"));
 
 	Deck deck = new Deck();
 	Hand player = new Hand(true);
 	Hand house = new Hand(false);
-	boolean winner = false, stay = false;
+	boolean winner = false;
 	boolean start_active = true; //determine if start button is active
+	boolean rules = false; //for toggling rules overlay
 	int cash = 100,
-		ante = 10,
+		ante = 0,
 		call = 0;
-	Timer t;
 
 	Poker(){
 		player.setDeck(deck);
@@ -31,41 +32,27 @@ public class Poker extends JPanel implements MouseListener,ActionListener{
 		setSize(800,600);
 		addMouseListener(this);
 		setVisible(true);
-
-		t = new Timer(800,this);
 	}
 
 	public void paintComponent(Graphics g){
 		background.paintIcon(this,g,0,0);
 		player.paint(this,g,false);
-		house.paint(this,g,!stay);
-
-		//print scores at ~ 335,270 and 335,300
-		g.setColor(Color.WHITE);
-		g.setFont(new Font(Font.SANS_SERIF,Font.BOLD,18));
-		g.drawString(player.getScore()+"",335,320);
-		if(stay)
-			g.drawString(house.getScore()+"",335,290);
-		else
-			g.drawString("???",335,290);
+		house.paint(this,g,!winner);
 
 		//print cash
 		g.setFont(new Font(Font.SANS_SERIF,Font.BOLD,24));
+		g.setColor(Color.BLACK);
 		g.drawString("Cash: $"+cash,20,580);
 		g.drawString("Ante: $"+ante,300,580);
 		g.drawString("Call: $"+call,580,580);
 
-		//if game is won, print result
+		b_rules.paintIcon(this,g,205,265);
+		if(rules)
+			overlay.paintIcon(this,g,0,0);
+
+		//if hand is finished, print play again button
 		if(winner){
-			if(player.getScore() > 21 || player.getScore() == house.getScore() ||
-					(player.getScore() < house.getScore() && house.getScore() <= 21)){
-				b_lose.paintIcon(this,g,400,265);
-				finish(false);
-			}
-			else{
-				b_win.paintIcon(this,g,400,265);
-				finish(true);
-			}
+			b_again.paintIcon(this,g,400,265);
 		}
 		else{
 			//print buttons at 400,265 and 500,265
@@ -80,6 +67,7 @@ public class Poker extends JPanel implements MouseListener,ActionListener{
 	//call this instead of start() to start
 	private void bet(){
 		boolean valid = false;
+
 		if(cash > 0){
 			while(!valid){
 				try{
@@ -97,6 +85,8 @@ public class Poker extends JPanel implements MouseListener,ActionListener{
 						"Invalid",JOptionPane.OK_CANCEL_OPTION);
 				}
 			}
+
+			cash -= ante;
 		}
 		else{
 			JOptionPane.showConfirmDialog(this,"You are out of money. Please get lost :-)",
@@ -106,41 +96,40 @@ public class Poker extends JPanel implements MouseListener,ActionListener{
 		start();
 	}
 
-	private void start(){
-		t.start();
-		
+	private void start(){		
 		winner = false;
-		stay = false;
 
 		deck.shuffle();
 
 		player.reset();
 		house.reset();
 
-		player.drawCard();
-		player.drawCard();
-		player.drawCard();
-		house.drawCard();
-		house.drawCard();
-		house.drawCard();
+		player.drawCard(3);
+		house.drawCard(3);
 
-		System.out.println(player.getScore());
+		//System.out.println(player.getScore());
 
 		repaint();
 	}
 
-	//player is true if the player won
-	private void finish(boolean p){
-		if(p)
-			cash += ante;
-		else
-			cash -= ante;
-		ante = 0;
-		t.stop();
-	}
+	private void finish(){
+		winner = true;
+		if(house.getScore() < 12){
+			ante = 2 * ante;
+		}
+		else if(player.getScore() == house.getScore()){
 
-	public void actionPerformed(ActionEvent e){
-		repaint();
+		}
+		else if(player.getScore() > house.getScore()){
+			ante = ante * 2;
+			call = call * 2;
+		}
+		else if(player.getScore() < house.getScore()){
+			ante = 0;
+			call = 0;
+		}
+		//else.. hands are equal, so do nothing.. ante and call will be 
+		//returned when you restart
 	}
 
 	public void mousePressed(MouseEvent e){
@@ -153,33 +142,47 @@ public class Poker extends JPanel implements MouseListener,ActionListener{
 			bet();
 			start_active = false;
 		}
-		//clicked hit
+		//clicked ride
 		else if(e.getX() > 400 &&
 				e.getX() < (400 + b_ride.getIconWidth()) &&
 				e.getY() > 265 &&
 				e.getY() < (265 + b_ride.getIconHeight())&&
-				!stay){
-			player.drawCard();
-			if(player.getScore() > 21)
-				stay = true;
+				!winner){
+			call = ante;
+			cash -= call;
+			finish();
 			repaint();
 		}
-		//clicked stay
+		//clicked fold
 		else if(e.getX() > 500 &&
 				e.getX() < (500 + b_fold.getIconWidth()) &&
 				e.getY() > 265 &&
 				e.getY() < (265 + b_fold.getIconHeight())&&
-				!stay){
-			stay = true;
+				!winner){
+			ante = 0;
+			finish();
 			repaint();
 		}
-		//clicked win/lose
+		//clicked play again
 		else if(e.getX() > 400 &&
-				e.getX() < (400 + b_win.getIconWidth()) &&
+				e.getX() < (400 + b_again.getIconWidth()) &&
 				e.getY() > 265 &&
-				e.getY() < (265 + b_win.getIconHeight())&&
+				e.getY() < (265 + b_again.getIconHeight())&&
 				winner){
+			cash += ante;
+			ante = 0;
+			cash += call;
+			call = 0;
+			repaint();
 			bet();
+		}
+		//clicked rules (205,265)
+		else if(e.getX() > 205 &&
+				e.getX() < (400 + b_rules.getIconWidth()) &&
+				e.getY() > 265 &&
+				e.getY() < 265 + b_rules.getIconHeight()){
+			rules = !rules;
+			repaint();
 		}
 	}
 	public void mouseReleased(MouseEvent e){}

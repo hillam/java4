@@ -13,7 +13,7 @@ public class Hand{
 	private boolean player;
 
 	public Hand(boolean player){
-		cards = new Card[10];
+		cards = new Card[5];
 		deck = new Deck();
 		size = 0;
 		aces = 0;
@@ -28,7 +28,7 @@ public class Hand{
 	}
 
 	public void reset(){
-		cards = new Card[10];
+		cards = new Card[5];
 		size = 0;
 		aces = 0;
 	}
@@ -37,23 +37,29 @@ public class Hand{
 	public void paint(JPanel j,Graphics g,boolean hole){
 		//paint each card. card: 115,175.. 2px margin is fine
 		if(size > 0)	
-			for(int i=0;i<size;i++)
+			for(int i=0;i<size;i++){
 				cards[i].paint(j,g,20+(i*117),y,hole);
+			}
+				
 	}
 
 	public void setDeck(Deck deck){
 		this.deck = deck;
 	}
 
-	public void drawCard(){
-		if(size < cards.length)
-			cards[size] = deck.drawCard();
-		else{
-			//array out of bounds, so expand it, and then try again
-			expand();
-			drawCard();
+	public void drawCard(int n){
+
+		for(int i=0;i<n;i++){
+			if(size < cards.length){
+				cards[size] = deck.drawCard();
+				size ++;
+			}
+			else{
+				//array out of bounds, so expand it, and then try again
+				expand();
+				drawCard(n-i);
+			}
 		}
-		size ++;
 		sort();
 	}
 
