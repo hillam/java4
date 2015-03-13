@@ -5,20 +5,64 @@ import java.util.regex.*;
 
 
 	/*--------------------------------------------------------------------------
-		TODO: CURRENTLY NOT WORKING FOR FREE TO PLAY OR AGECHECK 
+		 
 	--------------------------------------------------------------------------*/
 
 public class PriceFetcher{
 
-	PriceFetcher(){
+	private double price;
+	private String price_string;
+	private String name;
+	private String store_url;
+	private String api_url;
 
+	private String content;
+
+	public PriceFetcher(){}
+
+	public PriceFetcher(String url) throws Exception{
+		setStoreURL(url);
 	}
 
-	public static String getPrice(String url) throws Exception{
-		String content = "";
-		url = url;
+	public void setStoreURL(String url) throws Exception{
+		store_url = url;
+		initialize();
+	}
 
-		URL u = new URL(url);
+	public String getName(){
+		return name;
+	}
+
+	public double getPrice(){
+		return price;
+	}
+
+	public String getPriceString(){
+		return price_string;
+	}
+
+
+
+	/*--------------------------------------------------------------------------
+		 PRIVATE MEMBERS
+	--------------------------------------------------------------------------*/
+
+	private void initialize() throws Exception{
+		content = "";
+
+		Pattern p = Pattern.compile("(\\d+)");
+		Matcher m = p.matcher(store_url);
+
+		if(m.find()){
+			api_url = "http://store.steampowered.com/api/appdetails?appids=";
+			api_url += m.group(1);
+		}
+		else{
+			content = "Bad URL";
+			return;
+		}
+
+		URL u = new URL(api_url);
 
 		HttpURLConnection connection = (HttpURLConnection) u.openConnection();
 
@@ -28,25 +72,76 @@ public class PriceFetcher{
 		}
 		scanner.close();
 
-		//System.out.println(content);
-
-		Pattern p1 = Pattern.compile("<div class=\"discount_final_price\">&#36;([\\d\\.]+)");
-		Pattern p2 = Pattern.compile("<div class=\"game_purchase_price price\">[^&]+&#36;([\\d\\.]+)");
-		
-		Matcher m1 = p1.matcher(content);
-		Matcher m2 = p2.matcher(content);
-
-		//System.out.println(m1.find() + " " + m2.find());
-
-		if(m1.find())
-			return m1.group(1);
-		if (m2.find())
-			return m2.group(1);
-		return "No match found.";
+		setName();
+		setPrice();
 	}
 
-	public static void main(String[] args) throws Exception{
-		System.out.println(PriceFetcher.getPrice("http://store.steampowered.com/app/202200/"));
-		System.out.println(PriceFetcher.getPrice("http://store.steampowered.com/app/226860/"));
+	private void setName(){
+		Pattern p = Pattern.compile("\"name\"\\:\"([^\"]+)");
+		Matcher m = p.matcher(content);
+
+		if(m.find())
+			name = m.group(1);
+		else
+			name = "Error parsing JSON";
+	}
+
+	private void setPrice(){
+		Pattern p = Pattern.compile("\"final\"\\:(\\d+)");
+		Matcher m = p.matcher(content);
+
+		if(m.find()){
+			price = Double.parseDouble(m.group(1))/100;
+			price_string = "" + price;
+		}
+		else if(content.contains("\"is_free\":true")){
+			price = 0;
+			price_string = "Free";
+		}
+		else{
+			price = -1;
+			price_string = "Error parsing JSON";
+		}
+	}
+
+
+
+	/*--------------------------------------------------------------------------
+		 STATIC OPTION (depricated)
+	--------------------------------------------------------------------------*/
+
+	public static String getPrice(String url) throws Exception{
+		String c = "";
+
+		Pattern p = Pattern.compile("(\\d+)");
+		Matcher m = p.matcher(url);
+
+		if(m.find()){
+			url = "http://store.steampowered.com/api/appdetails?appids=";
+			url += m.group(1);
+		}
+		else
+			return "Bad URL";
+
+		URL u = new URL(url);
+
+		HttpURLConnection connection = (HttpURLConnection) u.openConnection();
+
+		Scanner scanner = new Scanner(connection.getInputStream());
+		while(scanner.hasNextLine()){
+			c += scanner.nextLine();
+		}
+		scanner.close();
+
+		p = Pattern.compile("\"final\"\\:(\\d+)");
+		m = p.matcher(c);
+
+		//System.out.println(m.find() + " " + m2.find());
+
+		if(m.find())
+			return "" + Double.parseDouble(m.group(1))/100;
+		else if(c.contains("\"is_free\":true"))
+			return "Free";
+		return "Error parsing JSON";
 	}
 }
