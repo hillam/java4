@@ -5,7 +5,8 @@ import java.util.regex.*;
 
 
 	/*--------------------------------------------------------------------------
-		 
+		 Get and store name and price of a game given it's store url
+		 using steam web api
 	--------------------------------------------------------------------------*/
 
 public class PriceFetcher{
