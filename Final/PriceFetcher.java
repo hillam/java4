@@ -5,11 +5,11 @@ import java.util.regex.*;
 
 
 	/*--------------------------------------------------------------------------
-		 Get and name and price of a game given it's store url
-		 using steam web api
+		Get and name and price of a game given it's store url
+		using steam web api
 	--------------------------------------------------------------------------*/
 
-public class PriceFetcher{
+public class PriceFetcher implements Comparable<PriceFetcher>{
 
 	private double price;
 	private String price_string;
@@ -40,6 +40,10 @@ public class PriceFetcher{
 
 	public String getPriceString(){
 		return price_string;
+	}
+
+	public int compareTo(PriceFetcher p){
+		return name.compareTo(p.getName());
 	}
 
 
@@ -103,46 +107,5 @@ public class PriceFetcher{
 			price = -1;
 			price_string = "Error parsing JSON";
 		}
-	}
-
-
-
-	/*--------------------------------------------------------------------------
-		 STATIC OPTION (depricated)
-	--------------------------------------------------------------------------*/
-
-	public static String getPrice(String url) throws Exception{
-		String c = "";
-
-		Pattern p = Pattern.compile("(\\d+)");
-		Matcher m = p.matcher(url);
-
-		if(m.find()){
-			url = "http://store.steampowered.com/api/appdetails?appids=";
-			url += m.group(1);
-		}
-		else
-			return "Bad URL";
-
-		URL u = new URL(url);
-
-		HttpURLConnection connection = (HttpURLConnection) u.openConnection();
-
-		Scanner scanner = new Scanner(connection.getInputStream());
-		while(scanner.hasNextLine()){
-			c += scanner.nextLine();
-		}
-		scanner.close();
-
-		p = Pattern.compile("\"final\"\\:(\\d+)");
-		m = p.matcher(c);
-
-		//System.out.println(m.find() + " " + m2.find());
-
-		if(m.find())
-			return "" + Double.parseDouble(m.group(1))/100;
-		else if(c.contains("\"is_free\":true"))
-			return "Free";
-		return "Error parsing JSON";
 	}
 }

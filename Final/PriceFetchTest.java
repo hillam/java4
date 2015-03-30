@@ -6,8 +6,8 @@ public class PriceFetchTest{
 		PriceFetcher p2 = new PriceFetcher("http://store.steampowered.com/app/218620/");
 		PriceFetcher p3 = new PriceFetcher("http://store.steampowered.com/app/212500/");
 
-		System.out.println(p1.getName() + "\t\t\t" + p1.getPriceString());
-		System.out.println(p2.getName() + "\t\t\t\t\t\t" + p2.getPriceString());
-		System.out.println(p3.getName() + "\t" + p3.getPriceString());
+		System.out.println(p1.getName() + ":\n" + p1.getPriceString());
+		System.out.println(p2.getName() + ":\n" + p2.getPriceString());
+		System.out.println(p3.getName() + ":\n" + p3.getPriceString());
 	}
 }
