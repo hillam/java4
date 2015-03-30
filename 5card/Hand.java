@@ -9,6 +9,7 @@ public class Hand{
 	private Card[] sorted;
 	private Deck deck;
 	private int size;
+	private int bet = 0;
 	private boolean player;
 
 	public Hand(boolean player){
@@ -254,4 +255,17 @@ public class Hand{
 	/*--------------------------------------------------------------------------
 	End hand ranking section
 	--------------------------------------------------------------------------*/
+
+	public int getBet(){
+		return bet;
+	}
+
+	public void increaseBet(int n){
+		bet += n;
+	}
+
+	public void resetBet(){
+		bet = 0;
+	}
+
 }
