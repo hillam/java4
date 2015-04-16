@@ -1,11 +1,11 @@
 import javax.swing.table.*;
 import javax.swing.event.*;
+import java.util.ArrayList;
 
-public class GamesTable implements TableModel{
+public class GamesTable extends AbstractTableModel {
 
-	private int columns = 3;
-	private int rows = 18;
-	private PriceFetcher[] games = new PriceFetcher[18];
+	private int columns = 2;
+	private ArrayList<PriceFetcher> games = new ArrayList<PriceFetcher>();
 	private int num_games = 0;
 
 	public static final int PRICE_ASCENDING = 0;
@@ -16,17 +16,22 @@ public class GamesTable implements TableModel{
 		LIST STUFF
 	--------------------------------------------------------------------------*/
 
-	public void addGame(PriceFetcher p){
-		games[num_games] = p;
-		num_games++;
+	public void addGame(String url) {
+		PriceFetcher p = new PriceFetcher(url);
+
+		//if it worked, add it, and incriment the counter..
+		if(p.getPrice() != -1 &&
+				!contains(p)){
+			games.add(p);
+		}
 	}
 
 	public void removeGame(int index){
-		
+		games.remove(index);
 	}
 
 	public void removeAll(){
-		
+		games.clear();
 	}
 
 	public void sort(int param){
@@ -34,9 +39,18 @@ public class GamesTable implements TableModel{
 	}
 
 	public void refresh(){
-		
+		for(int i=0;i<games.size();i++){
+			games.get(i).initialize();
+		}
 	}
 
+	public boolean contains(PriceFetcher p){
+		boolean c = false;
+		for(int i=0;i<games.size();i++)
+			if(p.compareTo(games.get(i)) == 0)
+				c = true;
+		return c;
+	}
 
 	/*--------------------------------------------------------------------------
 		TABLE STUFF
@@ -47,34 +61,20 @@ public class GamesTable implements TableModel{
 	}
 
 	public int getRowCount(){
-		return rows;
+		return games.size();
 	}
 
 	public String getColumnName(int col){
-		String[] names = {"*","Title","Price"};
+		String[] names = {"Title","Price"};
 		return names[col];
 	}
 
 	public Object getValueAt(int row, int col){ 
-		if(row >= num_games)
-			return "";
 		if(col == 0)
-			return "";
-		if(col == 1)
-			return games[row].getName();
-		else if(col == 2)
-			return games[row].getPriceString();
+			return games.get(row).getName();
+		else if(col == 1)
+			return games.get(row).getPriceString();
 		else
 			return "Table Error";
 	}
-
-	public void setValueAt(Object o,int row,int col){
-		//update table here?
-	}
-
-	public void addTableModelListener(TableModelListener l){}
-	public void removeTableModelListener(TableModelListener l){}
-	public boolean isCellEditable(int row,int col){ return false; }
-
-	public Class<?> getColumnClass(int col){ return (new PriceFetcher()).getClass(); }
 }

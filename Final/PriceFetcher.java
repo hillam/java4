@@ -16,16 +16,17 @@ public class PriceFetcher implements Comparable<PriceFetcher>{
 	private String name;
 	private String store_url;
 	private String api_url;
+	private int id;
 
 	private String content;
 
 	public PriceFetcher(){}
 
-	public PriceFetcher(String url) throws Exception{
+	public PriceFetcher(String url) {
 		setStoreURL(url);
 	}
 
-	public void setStoreURL(String url) throws Exception{
+	public void setStoreURL(String url) {
 		store_url = url;
 		initialize();
 	}
@@ -42,17 +43,15 @@ public class PriceFetcher implements Comparable<PriceFetcher>{
 		return price_string;
 	}
 
-	public int compareTo(PriceFetcher p){
-		return name.compareTo(p.getName());
+	public int getId(){
+		return id;
 	}
 
+	public int compareTo(PriceFetcher p){
+		return (new Integer(id)).compareTo(p.getId());
+	}
 
-
-	/*--------------------------------------------------------------------------
-		 PRIVATE MEMBERS
-	--------------------------------------------------------------------------*/
-
-	private void initialize() throws Exception{
+	public void initialize() {
 		content = "";
 
 		Pattern p = Pattern.compile("(\\d+)");
@@ -61,25 +60,38 @@ public class PriceFetcher implements Comparable<PriceFetcher>{
 		if(m.find()){
 			api_url = "http://store.steampowered.com/api/appdetails?appids=";
 			api_url += m.group(1);
+			id = Integer.parseInt(m.group(1));
 		}
 		else{
 			content = "Bad URL";
+			name = "Bad URL";
+			api_url = "Bad URL";
+			price_string = "Bad URL";
+			price = -1;
 			return;
 		}
 
-		URL u = new URL(api_url);
+		try{
+			URL u = new URL(api_url);
 
-		HttpURLConnection connection = (HttpURLConnection) u.openConnection();
+			HttpURLConnection connection = (HttpURLConnection) u.openConnection();
 
-		Scanner scanner = new Scanner(connection.getInputStream());
-		while(scanner.hasNextLine()){
-			content += scanner.nextLine();
+			Scanner scanner = new Scanner(connection.getInputStream());
+			while(scanner.hasNextLine()){
+				content += scanner.nextLine();
+			}
+			scanner.close();
+		} catch (Exception e){
+			System.out.println(e);
 		}
-		scanner.close();
 
 		setName();
 		setPrice();
 	}
+
+	/*--------------------------------------------------------------------------
+		 PRIVATE MEMBERS
+	--------------------------------------------------------------------------*/
 
 	private void setName(){
 		Pattern p = Pattern.compile("\"name\"\\:\"([^\"]+)");
@@ -95,15 +107,19 @@ public class PriceFetcher implements Comparable<PriceFetcher>{
 		Pattern p = Pattern.compile("\"final\"\\:(\\d+)");
 		Matcher m = p.matcher(content);
 
+		//System.out.println("Finding..");
 		if(m.find()){
+			//System.out.println("1");
 			price = Double.parseDouble(m.group(1))/100;
 			price_string = "" + price;
 		}
 		else if(content.contains("\"is_free\":true")){
+			//System.out.println("2");
 			price = 0;
 			price_string = "Free";
 		}
 		else{
+			//System.out.println("3");
 			price = -1;
 			price_string = "Error parsing JSON";
 		}
