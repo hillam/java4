@@ -2,8 +2,12 @@ import javax.swing.*;
 import javax.swing.table.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.*;
+import java.util.ArrayList;
 
 public class GUI extends JPanel implements ActionListener{
+	static final long serialVersionUID = 1;
+
 	private JFrame frame = new JFrame("Steam Price Tracker");
 
 	private JPanel firstRow = new JPanel();
@@ -28,6 +32,37 @@ public class GUI extends JPanel implements ActionListener{
 		setSize(800,500);
 		setLayout(new BorderLayout());
 
+		buildUI();
+
+		frame.add(this);
+		frame.setSize(800,500); //adjust when testing on windows
+		frame.setResizable(false);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setVisible(true);
+
+		readFile();
+
+		// save on close
+		frame.addWindowListener(new WindowAdapter()
+		{
+			public void windowClosing(WindowEvent e)
+			{
+				int safe = JOptionPane.showConfirmDialog(frame, "Would you like to save your changes?");
+				if(safe == JOptionPane.YES_OPTION){
+					frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);//yes
+					save();
+				} else if (safe == JOptionPane.CANCEL_OPTION) {
+					frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);//cancel
+				} else {
+					frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);//no
+				}
+			}
+		});
+
+		games.setFrame(frame);
+	}
+
+	public void buildUI(){
 		//set look and feel
 		try
 		{ UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -91,6 +126,7 @@ public class GUI extends JPanel implements ActionListener{
 		
 		scrollPanel.setLayout(new BorderLayout());
 		scrollPanel.setBackground(new Color(0,0,0,0));
+		scroll.getVerticalScrollBar().setUnitIncrement(20);
 		
 		//mainPanel.setLayout(new GridBagLayout());
 		//mainPanel.setBackground(new Color(0,0,0,0));
@@ -105,12 +141,45 @@ public class GUI extends JPanel implements ActionListener{
 		track.addActionListener(this);
 		refresh.addActionListener(this);
 		submit.addActionListener(this);
+		sort.addActionListener(this);
+	}
 
-		frame.add(this);
-		frame.setSize(800,500); //adjust when testing on windows
-		frame.setResizable(false);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setVisible(true);
+	public void readFile(){
+		try{
+			ArrayList<PriceFetcher> data = new ArrayList<PriceFetcher>();
+			File file = new File("games.spt");
+			if(!file.exists())
+				file.createNewFile();
+			else
+			{
+				FileInputStream fis = new FileInputStream("games.spt");
+				ObjectInputStream ois = new ObjectInputStream(fis);
+				data = (ArrayList<PriceFetcher>) ois.readObject();
+				ois.close();
+				fis.close();
+
+				for(PriceFetcher p : data)
+					games.addGame(p);
+
+				games.refresh();
+
+				int rows = games.getRowCount();
+				games.fireTableRowsInserted(rows, rows);
+				table.repaint();
+				updateUI();
+			}
+
+		} catch(Exception e){e.printStackTrace();}
+	}
+
+	public void save(){
+		try{
+			FileOutputStream fos = new FileOutputStream("games.spt");
+			ObjectOutputStream oos = new ObjectOutputStream(fos);
+			oos.writeObject(games.getGames());
+			oos.close();
+			fos.close();
+		} catch(Exception e){};
 	}
 
 	public void actionPerformed(ActionEvent e){
@@ -133,6 +202,9 @@ public class GUI extends JPanel implements ActionListener{
 				games.removeAll();
 
 			rows = games.getRowCount();
+		}
+		else if(e.getSource() == sort){
+			games.sort(sortBy.getSelectedIndex());
 		}
 
 		games.fireTableRowsInserted(rows, rows);

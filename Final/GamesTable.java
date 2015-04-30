@@ -1,16 +1,25 @@
+import javax.swing.*;
 import javax.swing.table.*;
 import javax.swing.event.*;
+import java.util.Collections;
 import java.util.ArrayList;
+import java.awt.event.*;
 
 public class GamesTable extends AbstractTableModel {
+	static final long serialVersionUID = 1;
 
 	private int columns = 2;
 	private ArrayList<PriceFetcher> games = new ArrayList<PriceFetcher>();
-	private int num_games = 0;
 
-	public static final int PRICE_ASCENDING = 0;
-	public static final int PRICE_DECENDING = 1;
-	public static final int TITLE = 2;
+	public static final int TITLE = 0;
+	public static final int PRICE_ASCENDING = 1;
+	public static final int PRICE_DESCENDING = 2;
+
+	private JFrame frame;
+
+	public void setFrame(JFrame f){
+		frame = f;
+	}
 
 	/*--------------------------------------------------------------------------
 		LIST STUFF
@@ -26,6 +35,11 @@ public class GamesTable extends AbstractTableModel {
 		}
 	}
 
+	public void addGame(PriceFetcher p){
+		if(!contains(p))
+			games.add(p);
+	}
+
 	public void removeGame(int index){
 		games.remove(index);
 	}
@@ -36,12 +50,50 @@ public class GamesTable extends AbstractTableModel {
 
 	public void sort(int param){
 		//pass in one of the static constants, and sort accordingly
+		switch(param){
+			case TITLE:
+				Collections.sort(games,PriceFetcher.TITLE_ASC);
+				break;
+			case PRICE_ASCENDING:
+				Collections.sort(games,PriceFetcher.PRICE_ASC);
+				break;
+			case PRICE_DESCENDING:
+				Collections.sort(games,PriceFetcher.PRICE_DESC);
+				break;
+		}
 	}
 
 	public void refresh(){
-		for(int i=0;i<games.size();i++){
-			games.get(i).initialize();
-		}
+		JOptionPane optionPane = new JOptionPane("Fetching prices...", 
+										JOptionPane.PLAIN_MESSAGE, 
+										JOptionPane.DEFAULT_OPTION, 
+										null, 
+										new Object[]{}, 
+										null);
+
+		final JDialog dialog = new JDialog(frame);
+		//dialog.setLocationRelativeTo(frame);
+		dialog.setModal(true);
+
+		dialog.setContentPane(optionPane);
+
+		dialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+		dialog.pack();
+
+		Timer timer = new Timer(0, new AbstractAction() {
+			@Override
+			public void actionPerformed(ActionEvent ae) {
+				for(int i=0;i<games.size();i++){
+					games.get(i).initialize();
+				}
+				dialog.dispose();
+			}
+		});
+		timer.setRepeats(false);
+
+		timer.start();
+
+		dialog.setVisible(true);		
 	}
 
 	public boolean contains(PriceFetcher p){
@@ -50,6 +102,10 @@ public class GamesTable extends AbstractTableModel {
 			if(p.compareTo(games.get(i)) == 0)
 				c = true;
 		return c;
+	}
+
+	public ArrayList<PriceFetcher> getGames(){
+		return new ArrayList<PriceFetcher>(games);
 	}
 
 	/*--------------------------------------------------------------------------
